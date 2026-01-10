@@ -1,0 +1,6 @@
+node_modeles
+.env
+.next
+dist
+build
+.prisma
