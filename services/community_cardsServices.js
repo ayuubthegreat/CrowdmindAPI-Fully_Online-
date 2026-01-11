@@ -1,9 +1,5 @@
-import express from "express"
-import prisma from "../lib/prisma.js";
-import bcrypt from "bcryptjs/dist/bcrypt.js";
-import { string, success } from "zod";
-import { authenticateToken } from "../middleware/auth_middleware.js";
-import jwt from "jsonwebtoken";
+import prisma from "prisma";
+
 
 
 export const changeStatus = async (req, res) => {

@@ -1,8 +1,6 @@
 import express from "express"
-import prisma from "../lib/prisma.js";
-import bcrypt from "bcryptjs/dist/bcrypt.js";
-import { success } from "zod";
-import { authenticateToken } from "../middleware/auth_middleware.js";
+import prisma from "prisma";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 

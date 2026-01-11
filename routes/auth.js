@@ -1,6 +1,5 @@
 import express from "express"
 import prisma from "../lib/prisma.js";
-import bcrypt from "bcryptjs/dist/bcrypt.js";
 import { success } from "zod";
 import { authenticateToken } from "../middleware/auth_middleware.js";
 import { registerFunc, loginFunc, token } from "../services/authServices.js";
