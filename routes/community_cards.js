@@ -1,5 +1,4 @@
 import express from "express";
-import prisma from "../lib/prisma.js";
 import { authenticateToken } from "../middleware/auth_middleware.js";
 import { changePriority, changeStatus, community_cardGetAll, community_cardGetAllOfUser, community_cardImportFunc, deleteAllCards, deleteCard, editCard } from "../services/community_cardsServices.js";
 

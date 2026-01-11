@@ -1,9 +1,7 @@
 import express from "express"
-import prisma from "../lib/prisma.js";
-import { success } from "zod";
+import prisma from "prisma";
 import { authenticateToken } from "../middleware/auth_middleware.js";
 import { registerFunc, loginFunc, token } from "../services/authServices.js";
-import jwt from "jsonwebtoken";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "GITS3"
