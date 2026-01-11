@@ -1,5 +1,5 @@
 import express from "express"
-import prisma from "prisma";
+import prisma from "../lib/prisma.js";
 import { authenticateToken } from "../middleware/auth_middleware.js";
 import { registerFunc, loginFunc, token } from "../services/authServices.js";
 
@@ -15,7 +15,13 @@ router.post("/login", async(req, res) => {
 router.get("/me", authenticateToken, async(req, res) => {
     try {
         const {email} = req.user; 
-        console.log(email);
+        console.log(email, prisma);
+        if (prisma === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: "Prisma is undefined."
+            })
+        }
         if (!email) {
             return res.status(400).json({
                 success: false,
