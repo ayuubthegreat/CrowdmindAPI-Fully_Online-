@@ -47,7 +47,7 @@ res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.user.create({
             data: {
-                websiteID : String(websiteID),
+                websiteID,
                 name, 
                 email,
                 password: hashedPassword,

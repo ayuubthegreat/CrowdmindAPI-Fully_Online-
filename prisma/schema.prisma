@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id        String @id @default(cuid())
-  websiteID String
+  websiteID Int
   name      String
   email     String @unique
   password  String
