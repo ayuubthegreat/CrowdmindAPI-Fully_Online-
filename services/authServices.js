@@ -26,15 +26,16 @@ res) => {
     try {
         const {name, email, password, websiteID} = req.body;
         console.log(email, password, websiteID);
-        if (!name || !email || !password) {
+        if (!websiteID || !name || !email || !password) {
             return res.status(400).json({
                 success: false,
-                message: "Must provide name, email, and password."
+                message: "Must provide name, email, password and Website ID."
             })
         }
         const user = await prisma.user.findUnique({
             where: {
                 email: email,
+                websiteID: websiteID,
             }
         })
         if (user) {
@@ -46,7 +47,7 @@ res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.user.create({
             data: {
-                websiteID,
+                websiteID : String(websiteID),
                 name, 
                 email,
                 password: hashedPassword,
@@ -96,6 +97,7 @@ export const loginFunc = async (req, res) => {
         const user = await prisma.user.findUnique({
             where: {
                 email: email,
+                websiteID: websiteID,
             },
             select: {
                 id: true,

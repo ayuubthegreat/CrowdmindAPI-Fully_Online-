@@ -1,3 +1,4 @@
+import { success } from "zod";
 import prisma from "../lib/prisma"
 // Projects made by GitSpedia
 
@@ -18,7 +19,7 @@ export const fetchProjectData = async (req, res) => {
     }
 }
 
-export default createNewProject = async (req, res) => {
+export const createNewProject = async (req, res) => {
     try {
         const {id} = req.user;
         const {title, description, objectives} = req.body;
@@ -39,7 +40,6 @@ export default createNewProject = async (req, res) => {
                 userID: true,
                 title: true,
                 description: true,
-                
             }
         })
         for (const i = 0; i < objectives.length; i++) {
@@ -52,12 +52,63 @@ export default createNewProject = async (req, res) => {
                 }
             })
         }
+        const allProjects = await prisma.project.findMany({});
+        res.status(201).json({
+            success: true,
+            message: "A new project has been created!",
+            data: {
+                user: req.user,
+                createdProject: newProject,
+                projects: allProjects,
+            }
+        })
         
     } catch (error) {
         console.error("Error creating project:", error);
         res.status(500).json({
             success: false,
             message: "Error creating project",
+            error: error.message
+        });
+    }
+}
+export const updateProject = async (req, res) => {
+    try {
+        const {projectID, title, description} = req.body;
+        if (!projectID || !title || !description) {
+            return res.status(400).json({
+                success: false,
+                message: "Project ID, title, and description are required."
+            })
+        }
+        const updatedProject = await prisma.project.update({
+            where: {id: projectID},
+            data: {
+                title,
+                description,
+            },
+            select: {
+                id: true,
+                userID: true,
+                title: true,
+                description: true,
+            }
+        })
+        const allProjects = await prisma.project.findMany({});
+        res.status(200).json({
+            success: true,
+            message: "Project updated successfully.",
+            data: {
+                user: req.user,
+                updatedProject: updatedProject,
+                projects: allProjects,
+            }
+        })
+    } catch (error) {
+        console.error("Error updating project:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error updating project",
             error: error.message
         });
     }
