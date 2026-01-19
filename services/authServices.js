@@ -24,9 +24,8 @@ export const token = function(obj) {
 export const registerFunc = async (req,
 res) => {
     try {
-        
-        const {name, email, password} = req.body;
-        console.log(email, password);
+        const {name, email, password, websiteID} = req.body;
+        console.log(email, password, websiteID);
         if (!name || !email || !password) {
             return res.status(400).json({
                 success: false,
@@ -47,6 +46,7 @@ res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await prisma.user.create({
             data: {
+                websiteID,
                 name, 
                 email,
                 password: hashedPassword,
@@ -54,6 +54,7 @@ res) => {
             },
             select: {
                 id: true,
+                websiteID: true,
                 name: true,
                 email: true,
                 role: true,
@@ -84,8 +85,8 @@ res) => {
 }
 export const loginFunc = async (req, res) => {
     try {
-        const {email, password} = req.body; 
-        console.log(email, password);
+        const {email, password, websiteID} = req.body; 
+        console.log(email, password, websiteID);
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -98,6 +99,7 @@ export const loginFunc = async (req, res) => {
             },
             select: {
                 id: true,
+                websiteID: true,
                 name: true,
                 email: true,
                 password: true,

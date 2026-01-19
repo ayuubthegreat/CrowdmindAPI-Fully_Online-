@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma.js";
-import { success } from "zod";
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "GITS3";
@@ -19,6 +18,7 @@ export const authenticateToken = async (req, res, next) => {
             where: {id: decoded.userID},
             select: {
                 id: true,
+                websiteID: true,
                 name: true,
                 email: true,
                 role: true,

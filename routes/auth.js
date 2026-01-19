@@ -14,7 +14,7 @@ router.post("/login", async(req, res) => {
 });
 router.get("/me", authenticateToken, async(req, res) => {
     try {
-        const {email} = req.user; 
+        const {email, websiteID} = req.user; 
         console.log(email, prisma);
         if (prisma === undefined) {
             return res.status(400).json({
@@ -31,6 +31,7 @@ router.get("/me", authenticateToken, async(req, res) => {
         const user = await prisma.user.findUnique({
             where: {
                 email: email,
+                websiteID: websiteID,
             },
             select: {
                 id: true,
