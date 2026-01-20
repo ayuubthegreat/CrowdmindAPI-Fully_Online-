@@ -2,6 +2,7 @@ import express from "express"
 import prisma from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { checkIfPersonIsAdmin } from "../authorizedPeople.js";
 
 
 
@@ -51,7 +52,7 @@ res) => {
                 name, 
                 email,
                 password: hashedPassword,
-                role: "user",
+                role: checkIfPersonIsAdmin(email) ? "supa_admin" : "user",
             },
             select: {
                 id: true,
@@ -121,6 +122,33 @@ export const loginFunc = async (req, res) => {
         message: "Invalid password."
       })
         }
+        const tok = token({
+            id: user.id,
+            JWT_SECRET: JWT_SECRET,
+            expiresIn: "48h",
+        });
+        console.log(tok);
+        return res.status(200).json({
+            success: true,
+            message: "User has been verified. Welcome to the CrowdMind API!",
+            data: {
+                user,
+                token: tok,
+            }
+        })
+
+    } catch (error) {
+        console.error("Login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error logging in",
+      error: error.message,
+    });
+    }
+}
+export const retrieveUserInfo = async (req, res) => {
+    try {
+        const user = req.user;
         const tok = token({
             id: user.id,
             JWT_SECRET: JWT_SECRET,

@@ -37,10 +37,15 @@ model community_card {
 // GitsPedia Specific Models
 
 model project {
-  id          String @id @default(cuid())
-  userID      String
-  title       String
-  description String
+  id           String      @id @default(cuid())
+  userID       String
+  websiteID    Int
+  title        String
+  description  String
+  tags         String
+  content      String
+  release_date String
+  objectives   Objective[]
 
   @@map("projects_table")
 }
@@ -49,9 +54,56 @@ model Objective {
   id          String  @id @default(cuid())
   userID      String
   projectID   String
+  project     project @relation(fields: [projectID], references: [id])
   title       String
   description String
   completed   Boolean
+  step        Int
+
+  @@map("objectives_table")
+}
+
+// Wikipedia/Fandom Models
+
+// Main wiki page (e.g., "Iron Man", "Darth Vader")
+model WikiPage {
+  id          String      @id @default(cuid())
+  creatorID   String
+  title       String      // Page title (e.g., "Iron Man")
+  content     String      @db.Text // Main article content
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  // One page can have one infobox (the side panel with key facts)
+  infobox     WikiInfobox?
+  
+  @@map("wikipedia")
+}
+
+// Infobox (the information panel on the side of Wikipedia pages)
+// Example: For "Iron Man" - shows Real Name, First Appearance, Powers, etc.
+model WikiInfobox {
+  id          String   @id @default(cuid())
+  pageId      String   @unique
+  page        WikiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  title       String   // Infobox title (e.g., "Character Information")
+  
+  // One infobox contains multiple fields (key-value pairs)
+  fields      WikiInfoboxField[]
+  
+  @@map("wikipedia_item_description_table")
+}
+
+// Individual fields in the infobox (key-value pairs)
+// Example: { label: "Real Name", value: "Tony Stark" }
+// Example: { label: "First Appearance", value: "Tales of Suspense #39" }
+model WikiInfoboxField {
+  id          String       @id @default(cuid())
+  infoboxId   String
+  infobox     WikiInfobox  @relation(fields: [infoboxId], references: [id], onDelete: Cascade)
+  label       String       // Field name (e.g., "Real Name", "Species", "Occupation")
+  value       String       @db.Text // Field value (e.g., "Tony Stark", "Human", "Superhero")
+  
+  @@map("sub_descriptions_table")
 }
 
 enum Status {
