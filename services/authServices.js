@@ -173,3 +173,43 @@ export const retrieveUserInfo = async (req, res) => {
     });
     }
 }
+export const findUserByID = async (req, res) => {
+    try {
+        const { userID } = req.body;
+        if (!userID) {
+            return res.status(400).json({
+                success: false,
+                message: "User ID is required."
+            });
+        }
+        const user = await prisma.user.findUnique({
+            where: { id: userID },
+            select: {
+                id: true,
+                websiteID: true,
+                name: true,
+                email: true,
+                role: true,
+            }
+        });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found."
+            });
+        }
+        return res.status(200).json({
+            success: true,
+            data: {
+                user,
+            }
+        });
+    } catch (error) {
+        console.error("Error finding user by ID:", error);
+        res.status(500).json({
+            success: false,
+            message: "Error finding user by ID",
+            error: error.message,
+        });
+    }
+}
