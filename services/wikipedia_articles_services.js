@@ -1,3 +1,4 @@
+import { ar } from "zod/locales";
 import prisma from "../lib/prisma.js";
 
 
@@ -15,7 +16,10 @@ export const getWikipediaArticles = async (req, res) => {
         const articles = await fetchAllWikipediaArticles();
         return res.status(200).json({
             success: true,
-            data: articles,
+            data: {
+                articles: articles,
+                user: req.user,
+            }
         });
     } catch (error) {
         console.error("Error in getWikipediaArticles:", error);
@@ -28,37 +32,69 @@ export const getWikipediaArticles = async (req, res) => {
 }
 export const createWikipediaArticle = async (req, res) => {
     try {
-        const { title, content, infobox } = req.body;
+        const { title, search_blurb, intro_paragraph, sections, infobox, references } = req.body;
+        console.log(req.body);
         const { id } = req.user; // Get user ID from authenticated user
         
-        if (!title || !content || !infobox) {
+        if (!title || !intro_paragraph) {
             return res.status(400).json({
                 success: false,
-                message: "Title, content, and infobox are required to create a Wikipedia article."
+                message: "Title and intro paragraph are required to create a Wikipedia article."
             });
         }
         
         const newArticle = await prisma.wikiPage.create({
             data: {
-                creatorID: id, // Add the required creatorID field
+                creatorID: id,
                 title,
-                content,
-                infobox: {
-                    create: {
-                        title: infobox.title,
-                        fields: {
-                            create: infobox.fields.map(field => ({
-                                label: field.label,
-                                value: field.value
-                            }))
+                search_blurb: search_blurb || title.substring(0, 50), // Default to truncated title
+                intro_paragraph,
+                // Create infobox if provided
+                ...(infobox && {
+                    infobox: {
+                        create: {
+                            title: infobox.title,
+                            image: infobox.image,
+                            fields: {
+                                create: infobox.data?.map(field => ({
+                                    heading: field.heading,
+                                    content: field.content
+                                })) || []
+                            }
                         }
                     }
+                }),
+                // Create sections if provided
+                sections: {
+                    create: sections?.map((section, index) => ({
+                        heading: section.heading,
+                        content: section.content,
+                        order: index
+                    })) || []
+                },
+                // Create references if provided
+                references: {
+                    create: references?.map((ref, index) => ({
+                        title: ref.title,
+                        url: ref.url,
+                        order: index
+                    })) || []
                 }
             },
             include: {
                 infobox: {
                     include: {
                         fields: true
+                    }
+                },
+                sections: {
+                    orderBy: {
+                        order: 'asc'
+                    }
+                },
+                references: {
+                    orderBy: {
+                        order: 'asc'
                     }
                 }
             }

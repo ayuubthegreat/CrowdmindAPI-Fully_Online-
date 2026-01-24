@@ -67,14 +67,18 @@ model Objective {
 
 // Main wiki page (e.g., "Iron Man", "Darth Vader")
 model WikiPage {
-  id          String      @id @default(cuid())
-  creatorID   String
-  title       String      // Page title (e.g., "Iron Man")
-  content     String      @db.Text // Main article content
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  // One page can have one infobox (the side panel with key facts)
-  infobox     WikiInfobox?
+  id              String          @id @default(cuid())
+  creatorID       String
+  title           String          // Page title (e.g., "Iron Man")
+  search_blurb    String          // Short description for search results (max 50 chars)
+  intro_paragraph String          @db.Text // Lead section (no heading)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  infobox         WikiInfobox?
+  sections        WikiSection[]
+  references      WikiReference[]
   
   @@map("wikipedia")
 }
@@ -82,10 +86,11 @@ model WikiPage {
 // Infobox (the information panel on the side of Wikipedia pages)
 // Example: For "Iron Man" - shows Real Name, First Appearance, Powers, etc.
 model WikiInfobox {
-  id          String   @id @default(cuid())
-  pageId      String   @unique
-  page        WikiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  title       String   // Infobox title (e.g., "Character Information")
+  id          String              @id @default(cuid())
+  pageId      String              @unique
+  page        WikiPage            @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  title       String?             // Infobox title (e.g., "Character Information")
+  image       String?             // Featured image URL
   
   // One infobox contains multiple fields (key-value pairs)
   fields      WikiInfoboxField[]
@@ -94,16 +99,42 @@ model WikiInfobox {
 }
 
 // Individual fields in the infobox (key-value pairs)
-// Example: { label: "Real Name", value: "Tony Stark" }
-// Example: { label: "First Appearance", value: "Tales of Suspense #39" }
+// Example: { heading: "Real Name", content: "Tony Stark" }
+// Example: { heading: "First Appearance", content: "Tales of Suspense #39" }
 model WikiInfoboxField {
   id          String       @id @default(cuid())
   infoboxId   String
   infobox     WikiInfobox  @relation(fields: [infoboxId], references: [id], onDelete: Cascade)
-  label       String       // Field name (e.g., "Real Name", "Species", "Occupation")
-  value       String       @db.Text // Field value (e.g., "Tony Stark", "Human", "Superhero")
+  heading     String?      // Field name (e.g., "Real Name", "Species", "Occupation")
+  content     String?      @db.Text // Field value (e.g., "Tony Stark", "Human", "Superhero")
   
   @@map("sub_descriptions_table")
+}
+
+// Content sections of the article (e.g., "History", "Powers and Abilities")
+model WikiSection {
+  id          String      @id @default(cuid())
+  pageId      String
+  page        WikiPage    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  heading     String?     // Section heading (optional for lead section)
+  content     String      @db.Text // Section content in markdown/text
+  order       Int         @default(0) // Display order
+  
+  @@index([pageId])
+  @@map("wiki_sections")
+}
+
+// References/Citations for the article
+model WikiReference {
+  id          String      @id @default(cuid())
+  pageId      String
+  page        WikiPage    @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  title       String      // Reference title
+  url         String?     // Reference URL (optional)
+  order       Int         @default(0) // Display order
+  
+  @@index([pageId])
+  @@map("wiki_references")
 }
 
 enum Status {
