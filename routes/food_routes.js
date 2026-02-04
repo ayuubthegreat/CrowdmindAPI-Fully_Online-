@@ -4,7 +4,7 @@ import { food_form_machine } from '../services/foodServices.js';
 
 const router = express.Router();
 
-router.post('/form', authenticateToken, async (req, res) => {
+router.post('/form', async (req, res) => {
     await food_form_machine(req, res);
 })
 export default router;
