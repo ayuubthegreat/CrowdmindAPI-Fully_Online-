@@ -19,7 +19,7 @@ app.use("/auth", authRoutes);
 app.use("/crowdmind", community_cardRoutes);
 app.use("/wiki/projects", wikipediaRoutes);
 app.use("/wiki/articles", wikipediaArticlesRoutes)
-app.use("/chatlog", chatlogRoutes);
+app.use("/chatbots", chatlogRoutes);
 app.use("/food", foodRoutes);
 
 app.listen(port, "0.0.0.0", () => {
