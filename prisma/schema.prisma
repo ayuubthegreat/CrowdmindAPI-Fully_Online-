@@ -138,12 +138,16 @@ model WikiReference {
 }
 
 model foodForm {
-  id            String @id @default(cuid())
-  userID        String
-  name          String
-  email_address String
-  phone_number  String
-  home_address  String
+  id          String   @id @default(cuid())
+  userID      String
+  name        String
+  email       String
+  phone       String
+  address     String
+  city        String
+  state       String
+  zip_code    String
+  submittedAt DateTime
 
   @@map("community_heart_mn_data")
 }

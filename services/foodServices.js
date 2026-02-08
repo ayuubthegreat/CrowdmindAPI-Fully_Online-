@@ -23,6 +23,19 @@ export const food_form_machine = async (req, res) => {
     current_entries.push(new_entry);
     console.log("Updated Food Form Entries:", current_entries);
     await fs.promises.writeFile('data/food_form_entries.json', JSON.stringify(current_entries, null, 2));
+    const db_entry = await prisma.foodFormEntry.create({
+        data: {
+            name,
+            userID: token,
+            email,
+            phone,
+            address,
+            city,
+            state,
+            zip_code,
+            submittedAt: new Date()
+        }
+    });
     res.status(200).json({ message: "Food form submitted successfully!", data: new_entry });
 }
 export const get_food_form_entries = async (req, res) => {
