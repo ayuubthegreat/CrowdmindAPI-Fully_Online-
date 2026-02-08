@@ -10,24 +10,15 @@ export const food_form_machine = async (req, res) => {
     const currentDate = new Date().toLocaleString().split(',');
     const new_entry = {name, email, phone, address, city, state, zip_code, token, submittedAt: currentDate};
     let current_entries = [];
-    if (await check_for_identical_food_entry(new_entry)) {
-        return res.status(400).json({ message: "Identical food form entry already exists." });
-    }
+    // if (await check_for_identical_food_entry(new_entry)) {
+    //     return res.status(400).json({ message: "Identical food form entry already exists." });
+    // }
     try {
-        const data = await fs.promises.readFile('data/food_form_entries.json', 'utf-8');
-        current_entries = JSON.parse(data);
-    } catch (error) {
-        // File doesn't exist yet, use empty array
-        current_entries = [];
-    }
-    current_entries.push(new_entry);
-    console.log("Updated Food Form Entries:", current_entries);
-    await fs.promises.writeFile('data/food_form_entries.json', JSON.stringify(current_entries, null, 2));
-    const db_entry = await prisma.foodFormEntry.create({
+    const db_entry = await prisma.foodForm.create({
         data: {
             name,
-            userID: token,
-            email,
+            userID: String(token),
+            email: email,
             phone,
             address,
             city,
@@ -36,7 +27,12 @@ export const food_form_machine = async (req, res) => {
             submittedAt: new Date()
         }
     });
+    console.log("New Food Form Entry Saved to Database:", db_entry);
     res.status(200).json({ message: "Food form submitted successfully!", data: new_entry });
+} catch (error) {
+    console.error("Error processing food form submission:", error);
+    res.status(500).json({ message: "Error processing food form submission.", error: error.message });
+}
 }
 export const get_food_form_entries = async (req, res) => {
     const {token} = req.body;
